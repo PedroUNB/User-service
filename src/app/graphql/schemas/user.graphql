@@ -1,0 +1,50 @@
+scalar Date
+
+input Pagination {
+  first: Int
+  offset: Int
+}
+
+input Ordering {
+  orderBy: String
+  orientation: String
+}
+
+input Filter {
+  argument: String
+}
+
+input UserFilter {
+  pagination: Pagination
+  ordering: Ordering
+  filter: Filter
+}
+
+input UserInput {
+  name: String!
+}
+
+type User @key(fields: "id") {
+  id: ID!
+  name: String!
+  createdAt: Date!
+  updatedAt: Date!
+  removedAt: Date
+}
+
+type UserList {
+  data: [User]!
+  totalCount: Int
+}
+
+type Query {
+  userHelloWorld: String!
+  getUserList(filter: UserFilter): UserList!
+  getUserById(userId: ID!): User!
+}
+
+type Mutation {
+  createUser(createUserInput: UserInput): User!
+  updateUser(userId: ID!, updateUserInput: UserInput!): User!
+  removeUser(userId: ID!): User!
+}

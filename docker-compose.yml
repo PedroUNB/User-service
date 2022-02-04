@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: app
+    container_name: user_node
+    command: bash -c "./wait-for-it.sh postgres:5432 -- ./node_modules/.bin/sequelize db:migrate && yarn start"
+    networks:
+      - postgres
+      - user-network
+    environment:
+      - PORT=3000
+      - DB_HOST=postgres
+      - MORGAN_LOG=false
+      - NODE_ENV=release
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  nginx:
+    container_name: user_nginx
+    restart: always
+    build: ./nginx/
+    depends_on:
+      - app
+    volumes:
+      - /www/public
+    ports:
+      - "4000:80"
+    networks:
+      - user-network
+    links:
+      - app
+
+networks:
+  postgres:
+    name: postgres
+  user-network:
+    name: user-network
